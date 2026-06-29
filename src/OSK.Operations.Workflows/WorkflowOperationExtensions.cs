@@ -10,6 +10,6 @@ public static class WorkflowOperationExtensions
     /// </summary>
     /// <param name="operation">The operation to iterate</param>
     /// <returns>The state of the operation</returns>
-    public static OperationState Iterate(this IWorkflowOperation operation)
-        => operation.Run(TimeSpan.Zero);
+    public static OperationState Iterate(this IIterativeOperation operation)
+        => operation.Iterate(TimeSpan.Zero);
 }

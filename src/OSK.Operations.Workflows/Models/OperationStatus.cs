@@ -9,7 +9,7 @@ namespace OSK.Operations.Workflows.Models;
 /// <param name="progress">How close to completion the operation is. This should be a value between 0 adn 1</param>
 /// <param name="message">A descriptive message for the current status</param>
 /// <param name="exception">An exception the operation encountered</param>
-public readonly struct OperationStatus(OperationState state, double progress = 0.0f, string message = "", Exception? exception = null)
+public readonly struct OperationStatus(OperationState state, double progress = 0.0f, string? message = null, Exception? exception = null)
 {
     #region Static
 
@@ -17,13 +17,16 @@ public readonly struct OperationStatus(OperationState state, double progress = 0
     public static OperationStatus Started = new(OperationState.InProgress, 0f, "Started");
     public static OperationStatus NotStarted = new(OperationState.NotStarted, 0f, "Not Started");
 
-    public static OperationStatus Failed(string message = "", Exception? exception = null)
-        => new(OperationState.Failed, 0.0f, message, exception);
+    public static OperationStatus Failed(string message)
+        => new(OperationState.Failed, 0.0f, message, null);
 
-    public static OperationStatus Aborted(string message = "")
+    public static OperationStatus Failed(Exception exception, string? message = null)
+        => new(OperationState.Failed, 0.0f, message ?? exception.Message, exception);
+
+    public static OperationStatus Aborted(string? message = null)
         => new(OperationState.Aborted, 0.0f, message);
 
-    public static OperationStatus ProgressUpdate(double progress = 0.0f, string message = "")
+    public static OperationStatus ProgressUpdate(double progress, string? message = null)
         => new(OperationState.InProgress, progress, message);
 
     #endregion
@@ -48,7 +51,7 @@ public readonly struct OperationStatus(OperationState state, double progress = 0
     /// <summary>
     /// A descriptive message for the current status
     /// </summary>
-    public string Message => message;
+    public string? Message => message;
 
     #endregion
 

@@ -1,24 +1,17 @@
-﻿namespace OSK.Operations.Workflows.Executors.Concurrent;
+﻿namespace OSK.Operations.Workflows.Models;
 
-public class ConcurrentExecutionOptions
+public class OperationRunSettings
 {
     #region Static
 
-    public static ConcurrentExecutionOptions Default() => new()
+    public static OperationRunSettings Default() => new()
     {
-        IgnoreFailedOperations = false,
         MaxConcurrenOperations = 1
     };
 
     #endregion
 
     #region Variables
-
-    /// <summary>
-    /// Determines if failed operations within a workpool should exit the entire operation or be ignored. Ignoring will allow accumulation of failed operations and 
-    /// continuation of the work pool.
-    /// </summary>
-    public bool IgnoreFailedOperations { get; set; }
 
     private int _concurrentOperations = 1;
     /// <summary>

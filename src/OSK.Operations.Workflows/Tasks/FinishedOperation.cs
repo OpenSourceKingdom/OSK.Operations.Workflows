@@ -8,7 +8,7 @@ namespace OSK.Operations.Workflows.Tasks;
 /// </summary>
 /// <param name="state">The state the operation should have</param>
 /// <param name="message">A descriptive message for the current state of the operation</param>
-public class FinishedOperation(OperationState state = OperationState.Complete, string message = "") : IWorkflowOperation
+public class FinishedOperation(OperationState state = OperationState.Complete, string message = "") : IIterativeOperation
 {
     #region Static
 
@@ -31,6 +31,8 @@ public class FinishedOperation(OperationState state = OperationState.Complete, s
 
     #region IIterativeOperation
 
+    public int TotalWorkItems { get; } = 0;
+
     public OperationStatus Status { get; } = state switch
     {
         OperationState.Complete => OperationStatus.Complete,
@@ -39,7 +41,7 @@ public class FinishedOperation(OperationState state = OperationState.Complete, s
         _ => throw new InvalidOperationException("Operation status must be in a final status for a completed operation.")
     };
 
-    public OperationState Run(TimeSpan delta)
+    public OperationState Iterate(TimeSpan delta)
         => Status.State;
 
     #endregion

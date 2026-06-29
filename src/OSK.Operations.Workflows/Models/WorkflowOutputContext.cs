@@ -1,25 +1,24 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using OSK.Operations.Workflows.Models;
 
-namespace OSK.Operations.Workflows.Executors.Sequential;
+namespace OSK.Operations.Workflows.Models;
 
 /// <summary>
-/// A context that contains information about the overall operations and reuslts of a given iteration for a sequential operation
+/// A context that contains information about the overall operations and reuslts of a given workflow run
 /// </summary>
-public class SequentialExecutionContext
+public class WorkflowOutputContext
 {
     #region Variables
 
-    private readonly Dictionary<int, IWorkflowOperation> _operationLookup = [];
+    private readonly Dictionary<string, Dictionary<string, ITaskOperation>> _completedTaskLookup = [];
 
     #endregion
 
     #region Public
 
     /// <summary>
-    /// Gets a previously completed operation from the context as the given type of <see cref="IWorkflowOperation"/>.
+    /// Gets a previously completed operation from the context as the given type of <see cref="IIterativeOperation"/>.
     /// </summary>
     /// <remarks>
     /// 💡Notes:
@@ -31,10 +30,10 @@ public class SequentialExecutionContext
     /// <typeparam name="TOperation">The type of operation that is expected.</typeparam>
     /// <param name="index"></param>bb
     /// <returns>The operation converted to the provided type.</returns>
-    public TOperation? GetOperationAs<TOperation>(int index)
-        where TOperation : class, IWorkflowOperation
+    public TOperation? GetOperationAs<TOperation>(string stepId, string key)
+        where TOperation : class, IIterativeOperation
     {
-        return _operationLookup.TryGetValue(index, out var operation) && operation is TOperation typedOperation 
+        return _completedTaskLookup.TryGetValue(stepId, out var stepOperationResultLookup) && stepOperationResultLookup.TryGetValue(key, out var operation) && operation is TOperation typedOperation 
             ? typedOperation 
             : null;
     }
@@ -45,9 +44,9 @@ public class SequentialExecutionContext
     /// <typeparam name="TOperation">The type of operation to convert to</typeparam>
     /// <returns>The operation converted to the provided type.</returns>
     public TOperation? GetLastOperationAs<TOperation>()
-        where TOperation: class, IWorkflowOperation
+        where TOperation: class, IIterativeOperation
     {
-        var lastOperation = _operationLookup.Values.LastOrDefault();
+        var lastOperation = _completedTaskLookup.Values.LastOrDefault();
         return lastOperation is TOperation typedOperation
             ? typedOperation
             : null;
@@ -68,10 +67,10 @@ public class SequentialExecutionContext
     /// <param name="key"></param>
     /// <returns></returns>
     /// 
-    public TResult? GetResultAs<TOperation, TResult>(int key)
+    public TResult? GetResultAs<TOperation, TResult>(string stepId, string key)
         where TOperation: class, ITaskOperation<TResult>
     {
-        var operation = GetOperationAs<TOperation>(key);
+        var operation = GetOperationAs<TOperation>(stepId, key);
         return operation is null
             ? default
             : operation.Result;
@@ -96,14 +95,28 @@ public class SequentialExecutionContext
 
     #region Helpers
 
-    internal void AddOperation(int key, IWorkflowOperation operation)
+    internal void AddOperation(string workflowStepId, string resultId, ITaskOperation operation)
     {
+        if (string.IsNullOrEmpty(workflowStepId))
+        {
+            throw new ArgumentNullException(new(workflowStepId));
+        }
+        if (string.IsNullOrEmpty(resultId))
+        {
+            throw new ArgumentNullException(new(resultId));
+        }
         if (operation is null)
         {
             throw new ArgumentNullException(nameof(operation));
         }
 
-        _operationLookup[key] = operation;
+        if (!_completedTaskLookup.TryGetValue(workflowStepId, out var workflowResultLookup))
+        {
+            workflowResultLookup = [];
+            _completedTaskLookup[workflowStepId] = workflowResultLookup;
+        }
+
+        workflowResultLookup[resultId] = operation;
     }
 
     #endregion

@@ -4,9 +4,9 @@ using OSK.Operations.Workflows.Models;
 namespace OSK.Operations.Workflows;
 
 /// <summary>
-/// A simple workflow operation that represents an iterative task to help with implementing other <see cref="IWorkflowOperation"/>
+/// A simple workflow operation that represents an iterative task to help with implementing other <see cref="IIterativeOperation"/>
 /// </summary>
-public abstract class WorkflowOperation : IWorkflowOperation
+public abstract class WorkflowOperation : IIterativeOperation
 {
     #region Variables
 
@@ -14,7 +14,9 @@ public abstract class WorkflowOperation : IWorkflowOperation
 
     #endregion
 
-    #region IIterativeOperation
+    #region IWorkflowOperation
+
+    public abstract int TotalWorkItems { get; }
 
     /// <inheritdoc/>
     public bool IsSuccessful => Status.State == OperationState.Complete;
@@ -26,7 +28,7 @@ public abstract class WorkflowOperation : IWorkflowOperation
     public OperationStatus Status { get; private set; } = OperationStatus.NotStarted;
 
     /// <inheritdoc/>
-    public OperationState Run(TimeSpan deltaTime)
+    public OperationState Iterate(TimeSpan deltaTime)
     {
         if (IsFinished)
         {
@@ -46,10 +48,18 @@ public abstract class WorkflowOperation : IWorkflowOperation
 
     #region Helpers
 
+    /// <summary>
+    /// Ran once, during the first iteration, to allow the operation to perform any required setup separate from the normal iterations
+    /// </summary>
     protected virtual void Initialize()
     {
     }
 
+    /// <summary>
+    /// Runs every iteration and should handle the core requirements of the operation logic. 
+    /// </summary>
+    /// <param name="delta">The time delta since the last iteration</param>
+    /// <returns>The status of the operation after iterating</returns>
     protected abstract OperationStatus RunIteration(TimeSpan delta);
 
     #endregion

@@ -22,7 +22,7 @@ public class AsynchronousOperation : WorkflowOperation
     #region Constructors
 
     /// <summary>
-    /// Create an async operation using a delayed factory
+    /// Create an async operation using a delayed factory; i.e. the async task will not start until the operation is iterated at least once
     /// </summary>
     /// <param name="taskFactory">The factory to use to create a given task</param>
     /// <exception cref="ArgumentNullException">Task factory can not be null</exception>
@@ -75,23 +75,18 @@ public class AsynchronousOperation : WorkflowOperation
 
     #region IterativeOperation Overrides
 
-    /// <summary>
-    /// Triggered when a task has completed iterating and is finzalized
-    /// </summary>
-    /// <param name="task">The task that just completed</param>
-    protected virtual void OnTaskComplete(Task task)
+    public override int TotalWorkItems { get; } = 1;
+
+    protected override void Initialize()
     {
+        _task ??= _taskFactory?.Invoke();
     }
 
     protected override OperationStatus RunIteration(TimeSpan deltaTime)
     {
         if (_task is null)
         {
-            _task = _taskFactory?.Invoke();
-            if (_task is null)
-            {
-                return OperationStatus.Complete;
-            }
+            return OperationStatus.Complete;
         }
         if (_task.IsCompletedSuccessfully)
         {
@@ -107,10 +102,22 @@ public class AsynchronousOperation : WorkflowOperation
             Exception = _task.Exception is AggregateException aggregateException
                 ? aggregateException.InnerException
                 : _task.Exception;
-            return OperationStatus.Failed(_task.Exception?.Message ?? "Unknown exception.", _task.Exception);
+            return OperationStatus.Failed(_task.Exception);
         }
 
         return OperationStatus.ProgressUpdate(0, "Operation Running...");
+    }
+
+    #endregion
+
+    #region Helpers
+
+    /// <summary>
+    /// Triggered when a task has completed iterating and is finzalized
+    /// </summary>
+    /// <param name="task">The task that just completed</param>
+    protected virtual void OnTaskComplete(Task task)
+    {
     }
 
     #endregion

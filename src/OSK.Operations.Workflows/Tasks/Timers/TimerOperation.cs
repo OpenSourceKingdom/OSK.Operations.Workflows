@@ -20,6 +20,8 @@ public class TimerOperation(TimeSpan timeDelay) : WorkflowOperation
 
     #region IterativeOperation Overrides
 
+    public override int TotalWorkItems { get; } = 1;
+
     protected override OperationStatus RunIteration(TimeSpan deltaTime)
     {
         TimeRemaining = TimeRemaining.Subtract(deltaTime);
