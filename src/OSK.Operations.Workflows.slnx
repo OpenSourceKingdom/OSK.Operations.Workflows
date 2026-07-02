@@ -1,3 +1,4 @@
 <Solution>
+  <Project Path="OSK.Operations.Workflows.UnitTests/OSK.Operations.Workflows.UnitTests.csproj" Id="e620bda9-6360-4cb9-b20a-c459393eef96" />
   <Project Path="OSK.Operations.Workflows/OSK.Operations.Workflows.csproj" />
 </Solution>
