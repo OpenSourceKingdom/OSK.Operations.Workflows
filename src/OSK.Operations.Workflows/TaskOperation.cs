@@ -6,7 +6,7 @@ namespace OSK.Operations.Workflows;
 /// <summary>
 /// A base class for iterative operations to help with implementing other <see cref="ITaskOperation{TResult}"/>
 /// </summary>
-public abstract class TaskOperation<TResult> : WorkflowOperation, ITaskOperation<TResult>
+public abstract class TaskOperation<TResult> : IterativeOperation, ITaskOperation<TResult>
 {
     /// <inheritdoc/>
     [MemberNotNullWhen(true, nameof(Result))]

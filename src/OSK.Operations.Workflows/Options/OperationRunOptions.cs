@@ -1,10 +1,10 @@
-﻿namespace OSK.Operations.Workflows.Models;
+﻿namespace OSK.Operations.Workflows.Options;
 
-public class OperationRunSettings
+public class OperationRunOptions
 {
     #region Static
 
-    public static OperationRunSettings Default() => new()
+    public static OperationRunOptions Default() => new()
     {
         MaxConcurrenOperations = 1
     };

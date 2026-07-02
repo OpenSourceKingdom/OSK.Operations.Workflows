@@ -11,7 +11,6 @@ namespace OSK.Operations.Workflows.Tasks.Timers;
 /// <param name="result">Thje result to return once the timer completes</param>
 public class TimerOperation<TResult>(TimeSpan timeDelay, TResult result) : TimerOperation(timeDelay), ITaskOperation<TResult>
 {
-
     #region TimerOperation Overrides
 
     /// <inheritdoc/>>

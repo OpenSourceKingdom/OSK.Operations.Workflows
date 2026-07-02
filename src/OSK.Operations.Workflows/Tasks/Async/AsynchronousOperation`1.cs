@@ -23,6 +23,16 @@ public class AsynchronousOperation<TResult> : AsynchronousOperation, ITaskOperat
     }
 
     /// <summary>
+    /// Create an async operation using a delayed factory; i.e. the async task will not start until the operation is iterated at least once
+    /// </summary>
+    /// <param name="taskFactory">The factory to use to create a given task</param>
+    /// <exception cref="ArgumentNullException">Value task factory can not be null</exception>
+    public AsynchronousOperation(Func<ValueTask<TResult>> taskFactory)
+        : base(GetTaskFactory(taskFactory))
+    {
+    }
+
+    /// <summary>
     /// Create an async operation using a task directly
     /// </summary>
     /// <param name="task">A task</param>
@@ -64,7 +74,18 @@ public class AsynchronousOperation<TResult> : AsynchronousOperation, ITaskOperat
 
     #region Helpers
 
-    private static Task<TResult> GetTask(ValueTask<TResult> task)
+    private static Func<Task<TResult>> GetTaskFactory(Func<ValueTask<TResult>> taskFactory)
+        => () =>
+        {
+            var valueTask = taskFactory();
+            return valueTask.IsCompleted
+                ? valueTask.IsCompletedSuccessfully
+                    ? Task.FromResult(valueTask.Result)
+                    : valueTask.IsCanceled? Task.FromCanceled<TResult>(CancelledToken) : valueTask.AsTask()
+                : valueTask.AsTask();
+        };
+
+private static Task<TResult> GetTask(ValueTask<TResult> task)
         => task.IsCompleted
             ? task.IsCompletedSuccessfully
                 ? Task.FromResult(task.Result)

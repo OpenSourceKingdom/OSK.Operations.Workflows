@@ -1,10 +1,10 @@
-﻿namespace OSK.Operations.Workflows.Models;
+﻿namespace OSK.Operations.Workflows.Options;
 
-public class TaskRunSettings
+public class TaskRunOptions
 {
     #region Static
 
-    public static TaskRunSettings Default() => new()
+    public static TaskRunOptions Default() => new()
     {
         IgnoreFailure = false
     };

@@ -6,7 +6,7 @@ namespace OSK.Operations.Workflows;
 /// <summary>
 /// A simple workflow operation that represents an iterative task to help with implementing other <see cref="IIterativeOperation"/>
 /// </summary>
-public abstract class WorkflowOperation : IIterativeOperation
+public abstract class IterativeOperation : IIterativeOperation
 {
     #region Variables
 
@@ -22,7 +22,7 @@ public abstract class WorkflowOperation : IIterativeOperation
     public bool IsSuccessful => Status.State == OperationState.Complete;
 
     /// <inheritdoc/>
-    public bool IsFinished => Status.State != OperationState.InProgress || Status.State != OperationState.NotStarted;
+    public bool IsFinished => Status.State != OperationState.InProgress && Status.State != OperationState.NotStarted;
 
     /// <inheritdoc/>
     public OperationStatus Status { get; private set; } = OperationStatus.NotStarted;

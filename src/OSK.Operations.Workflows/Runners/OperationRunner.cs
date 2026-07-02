@@ -1,21 +1,24 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using OSK.Operations.Workflows.Events;
 using OSK.Operations.Workflows.Models;
+using OSK.Operations.Workflows.Options;
+using OSK.Operations.Workflows.Ports;
 
 namespace OSK.Operations.Workflows.Executors;
 
 /// <summary>
 /// Executes a collection of operations in a concurrent manner.
 /// </summary>
-public class OperationRunner: WorkflowOperation, IOperationRunner
+public class OperationRunner: IterativeOperation, IOperationRunner
 {
     #region Variables
 
-    private readonly Queue<TaskOperationDetails> _operations;
+    private readonly Queue<WorkflowTaskOperationDetails> _operations;
 
-    private readonly OperationRunSettings _settings;
-    private readonly List<TaskOperationDetails> _inProgressOperations = []; 
+    private readonly OperationRunOptions _settings;
+    private readonly List<WorkflowTaskOperationDetails> _inProgressOperations = []; 
     private readonly List<ITaskOperation> _completedOperations = [];
 
     private int _totalFailedOperations = 0;
@@ -29,7 +32,7 @@ public class OperationRunner: WorkflowOperation, IOperationRunner
     /// </summary>
     /// <param name="operations"></param>
     public OperationRunner(params ITaskOperation[] operations)
-        : this(OperationRunSettings.Default(), operations)
+        : this(OperationRunOptions.Default(), operations)
     {
     }
 
@@ -37,8 +40,8 @@ public class OperationRunner: WorkflowOperation, IOperationRunner
     /// Create a runner that utilizes the provided operation details using the default run settings
     /// </summary>
     /// <param name="operations"></param>
-    public OperationRunner(params TaskOperationDetails[] operations)
-        : this(OperationRunSettings.Default(), operations)
+    public OperationRunner(params WorkflowTaskOperationDetails[] operations)
+        : this(OperationRunOptions.Default(), operations)
     {
     }
 
@@ -48,8 +51,8 @@ public class OperationRunner: WorkflowOperation, IOperationRunner
     /// <param name="settings"></param>
     /// <param name="operations"></param>
     /// <exception cref="ArgumentNullException"></exception>
-    public OperationRunner(OperationRunSettings settings, params ITaskOperation[] operations)
-        : this(settings, [.. operations.Select(operation => new TaskOperationDetails(operation))])
+    public OperationRunner(OperationRunOptions settings, params ITaskOperation[] operations)
+        : this(settings, [.. operations.Select(operation => new WorkflowTaskOperationDetails(operation))])
     {
     }
 
@@ -59,7 +62,7 @@ public class OperationRunner: WorkflowOperation, IOperationRunner
     /// <param name="settings">The settings to use with the runner</param>
     /// <param name="operations">The operation details</param>
     /// <exception cref="ArgumentNullException"></exception>
-    public OperationRunner(OperationRunSettings settings, params TaskOperationDetails[] operations)
+    public OperationRunner(OperationRunOptions settings, params WorkflowTaskOperationDetails[] operations)
     {
         _operations = operations is null
             ? []
@@ -73,7 +76,7 @@ public class OperationRunner: WorkflowOperation, IOperationRunner
 
     #region IOperationExecutor
 
-    public event Action<TaskOperationDetails>? OnOperationFinished;
+    public event Action<TaskOperationFinishedEvent>? OnOperationFinished;
 
     #endregion
 
@@ -122,18 +125,16 @@ public class OperationRunner: WorkflowOperation, IOperationRunner
                 var finishedOperation = _inProgressOperations[i];
                 _inProgressOperations.RemoveAt(i);
 
+                OnOperationFinished?.Invoke(new TaskOperationFinishedEvent(finishedOperation.Operation, finishedOperation.Id));
+
                 if (state is not OperationState.Complete)
                 {
                     _totalFailedOperations++;
-
-
                     continue;
                 }
 
                 _completedOperations.Add(finishedOperation.Operation);
                 i--;
-
-                OnOperationFinished?.Invoke(finishedOperation);
             }
             else
             {

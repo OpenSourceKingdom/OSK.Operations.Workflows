@@ -7,7 +7,7 @@ namespace OSK.Operations.Workflows.Tasks.Timers;
 /// An operation that is based on a given timer
 /// </summary>
 /// <param name="timeDelay">The time delay before the operation completes</param>
-public class TimerOperation(TimeSpan timeDelay) : WorkflowOperation
+public class TimerOperation(TimeSpan timeDelay) : IterativeOperation, ITaskOperation
 {
     #region Api
 

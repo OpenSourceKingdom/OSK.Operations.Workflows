@@ -8,11 +8,11 @@ namespace OSK.Operations.Workflows.Tasks.Async;
 /// <summary>
 /// An operation that is driven by an async style task
 /// </summary>
-public class AsynchronousOperation : WorkflowOperation
+public class AsynchronousOperation : IterativeOperation, ITaskOperation
 {
     #region Variables
 
-    internal static CancellationToken CancelledToken = new(canceled: true);
+    public static CancellationToken CancelledToken = new(canceled: true);
 
     private readonly Func<Task>? _taskFactory;
     private Task? _task;
@@ -34,6 +34,28 @@ public class AsynchronousOperation : WorkflowOperation
         }
 
         _taskFactory = taskFactory;
+    }
+
+    /// <summary>
+    /// Create an async operation using a delayed factory; i.e. the async task will not start until the operation is iterated at least once
+    /// </summary>
+    /// <param name="taskFactory">The factory to use to create a given task</param>
+    /// <exception cref="ArgumentNullException">Value task factory can not be null</exception>
+    public AsynchronousOperation(Func<ValueTask> taskFactory)
+    {
+        if (taskFactory is null)
+        {
+            throw new ArgumentNullException(nameof(taskFactory));
+        }
+        _taskFactory = () =>
+        {
+            var valueTask = taskFactory();
+            return valueTask.IsCompleted
+                ? valueTask.IsCompletedSuccessfully
+                    ? Task.CompletedTask
+                    : valueTask.IsCanceled ? Task.FromCanceled(CancelledToken) : valueTask.AsTask()
+                : valueTask.AsTask();
+        };
     }
 
     /// <summary>

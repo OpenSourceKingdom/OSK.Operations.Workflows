@@ -16,7 +16,7 @@ public interface IIterativeOperation
     /// Whether the operation has completed successfuly.
     /// </summary>
     /// <remarks>
-    /// 💡Notes:.ma
+    /// 💡Notes:
     /// <list type="bullet">
     /// <item>An operation may not be successful because it is still running. To know its full state, check the <see cref="Status"/></item>
     /// </list>

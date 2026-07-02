@@ -8,7 +8,7 @@ namespace OSK.Operations.Workflows.Tasks;
 /// </summary>
 /// <param name="state">The state the operation should have</param>
 /// <param name="message">A descriptive message for the current state of the operation</param>
-public class FinishedOperation(OperationState state = OperationState.Complete, string message = "") : IIterativeOperation
+public class FinishedOperation(OperationState state = OperationState.Complete, string message = "") : ITaskOperation
 {
     #region Static
 
