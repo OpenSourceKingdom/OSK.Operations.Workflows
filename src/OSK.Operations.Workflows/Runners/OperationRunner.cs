@@ -6,7 +6,7 @@ using OSK.Operations.Workflows.Models;
 using OSK.Operations.Workflows.Options;
 using OSK.Operations.Workflows.Ports;
 
-namespace OSK.Operations.Workflows.Executors;
+namespace OSK.Operations.Workflows.Runners;
 
 /// <summary>
 /// Executes a collection of operations in a concurrent manner.

@@ -4,10 +4,10 @@ using OSK.Operations.Workflows.Ports;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using OSK.Operations.Workflows.Runners;
 
 namespace OSK.Operations.Workflows.Runners;
 
+/// <inheritdoc/>
 public class WorkflowRunner(IEnumerable<WorkflowStep> steps) : IterativeOperation, IWorkflowRunner
 {
     #region Variables
