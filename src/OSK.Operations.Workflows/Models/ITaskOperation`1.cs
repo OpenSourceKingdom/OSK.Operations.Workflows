@@ -14,14 +14,14 @@ public interface ITaskOperation<TResult> : ITaskOperation
     /// <remarks>
     /// 💡Notes:
     /// <list type="bullet">
-    /// <item>An operation may not be successful because it is still running. To know its full state, check the <see cref="Status"/></item>
+    /// <item>An operation may not be successful because it is still running. To know its full state, check the status</item>
     /// </list>
     /// </remarks>
     [MemberNotNullWhen(true, nameof(Result))]
     new bool IsSuccessful => Status.State == OperationState.Complete;
 
     /// <summary>
-    /// The operation's output of type <see cref="{TResult}"/>. This will only be set if the operation has finished successfully.
+    /// The operation's output of type <typeparamref name="TResult"/>. This will only be set if the operation has finished successfully.
     /// </summary>
     TResult? Result { get; }
 }

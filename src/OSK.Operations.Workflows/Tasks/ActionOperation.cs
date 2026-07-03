@@ -3,6 +3,10 @@ using System;
 
 namespace OSK.Operations.Workflows.Tasks;
 
+/// <summary>
+/// An operation that executes a given action.
+/// </summary>
+/// <param name="action"></param>
 public class ActionOperation(Action action) : IterativeOperation, ITaskOperation
 {
     #region IterativeOperation Overrides

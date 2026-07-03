@@ -1,5 +1,10 @@
-﻿namespace OSK.Operations.Workflows.Options;
+﻿using OSK.Operations.Workflows.Ports;
 
+namespace OSK.Operations.Workflows.Options;
+
+/// <summary>
+/// Operation run options that can be used to configure how operations are run with an <see cref="IOperationRunner"/>
+/// </summary>
 public class OperationRunOptions
 {
     #region Static

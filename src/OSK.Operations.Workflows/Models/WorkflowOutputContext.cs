@@ -28,12 +28,13 @@ public class WorkflowOutputContext
     /// </list>
     /// </remarks>
     /// <typeparam name="TOperation">The type of operation that is expected.</typeparam>
-    /// <param name="index"></param>bb
+    /// <param name="stepId">The id for the workflow step the outputs are associated with</param>
+    /// <param name="resultId">The key for the specific operation result</param>
     /// <returns>The operation converted to the provided type.</returns>
-    public TOperation? GetOperationAs<TOperation>(string stepId, string key)
+    public TOperation? GetOperationAs<TOperation>(string stepId, string resultId)
         where TOperation : class, IIterativeOperation
     {
-        return _completedTaskLookup.TryGetValue(stepId, out var stepOperationResultLookup) && stepOperationResultLookup.TryGetValue(key, out var operation) && operation is TOperation typedOperation 
+        return _completedTaskLookup.TryGetValue(stepId, out var stepOperationResultLookup) && stepOperationResultLookup.TryGetValue(resultId, out var operation) && operation is TOperation typedOperation 
             ? typedOperation 
             : null;
     }
@@ -65,12 +66,14 @@ public class WorkflowOutputContext
     /// </list>
     /// </remarks>
     /// <typeparam name="TResult">The type of result the operation returns</typeparam>
-    /// <param name="key">The result id for the operation</param>
+    /// <param name="stepId">The id for the workflow step the outputs are associated with</param>
+    /// <param name="resultId">The key for the specific operation result</param>
+    /// <param name="result">The result of the operation if it was successfully retrieved</param>
     /// <returns>whether the result was successfully retrieved</returns>
     /// 
-    public bool TryGetResultAs<TResult>(string stepId, string key, out TResult? result)
+    public bool TryGetResultAs<TResult>(string stepId, string resultId, out TResult? result)
     {
-        var operation = GetOperationAs<IIterativeOperation>(stepId, key);
+        var operation = GetOperationAs<IIterativeOperation>(stepId, resultId);
         if (operation is null || operation is not ITaskOperation<TResult> typedOperation)
         {
             result = default;
@@ -85,6 +88,7 @@ public class WorkflowOutputContext
     /// Tries to get the most recent operation and returns the result as the given type
     /// </summary>
     /// <typeparam name="TResult">The type of result the operation returned</typeparam>
+    /// <param name="result">The result of the operation if it was successfully retrieved</param>
     /// <returns>whether the result was successfully retrieved</returns>
     public bool TryGetLastResultAs<TResult>(out TResult? result)
     {

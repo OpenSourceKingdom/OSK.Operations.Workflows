@@ -13,19 +13,58 @@ public readonly struct OperationStatus(OperationState state, double progress = 0
 {
     #region Static
 
+    /// <summary>
+    /// A status that represents a completed task.
+    /// </summary>
     public static OperationStatus Complete = new(OperationState.Complete, 1.0f, "Complete");
+
+    /// <summary>
+    /// A status that represents a task that just started
+    /// </summary>
     public static OperationStatus Started = new(OperationState.InProgress, 0f, "Started");
+
+    /// <summary>
+    /// A status that represents a task that has not yet started
+    /// </summary>
     public static OperationStatus NotStarted = new(OperationState.NotStarted, 0f, "Not Started");
 
-    public static OperationStatus Failed(string message)
+    /// <summary>
+    /// Creates a status that represents a failed task with an optional message
+    /// </summary>
+    /// <param name="message">The status message</param>
+    /// <returns>The failed status</returns>
+    public static OperationStatus Failed(string? message = null)
         => new(OperationState.Failed, 0.0f, message, null);
 
+    /// <summary>
+    /// Creates a status that represents a failed task with an exception and an optional message
+    /// </summary>
+    /// <remarks>
+    /// 💡Notes:
+    /// <list type="bullet">
+    /// <item>The exception message is used for the status by default</item>
+    /// </list>
+    /// </remarks>
+    /// <param name="exception">The exception the operation encountered</param>
+    /// <param name="message">The status message</param>
+    /// <returns>The failed status</returns>
     public static OperationStatus Failed(Exception exception, string? message = null)
         => new(OperationState.Failed, 0.0f, message ?? exception.Message, exception);
 
+    /// <summary>
+    /// Creates a status that represents an aborted task with an optional message
+    /// </summary>
+    /// <param name="message">The status message</param>
+    /// <returns>The aborted status</returns>
     public static OperationStatus Aborted(string? message = null)
         => new(OperationState.Aborted, 0.0f, message);
 
+    /// <summary>
+    /// Creates a status that represents an operation that is in progress with a given progress value and an optional message
+    /// </summary>
+    /// <param name="progress">The progress value</param>
+    /// <param name="message">The status message</param>
+    /// <returns>The in-progress status</returns>
     public static OperationStatus ProgressUpdate(double progress, string? message = null)
         => new(OperationState.InProgress, progress, message);
 

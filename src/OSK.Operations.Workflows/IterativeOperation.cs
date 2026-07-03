@@ -16,6 +16,7 @@ public abstract class IterativeOperation : IIterativeOperation
 
     #region IWorkflowOperation
 
+    /// <inheritdoc/>
     public abstract int TotalWorkItems { get; }
 
     /// <inheritdoc/>

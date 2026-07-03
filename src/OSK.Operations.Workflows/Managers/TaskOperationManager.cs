@@ -8,6 +8,7 @@ using System.Linq;
 
 namespace OSK.Operations.Workflows.Managers;
 
+/// <inheritdoc/>
 public class TaskOperationManager : ITaskOperationManager
 {
     #region Variables
@@ -20,8 +21,10 @@ public class TaskOperationManager : ITaskOperationManager
 
     #region 
 
+    /// <inheritdoc/>
     public event Action<ITaskOperation>? OnOperationFinished;
 
+    /// <inheritdoc/>
     public ManagedOperation? AddOperation(ITaskOperation operation, ManagedTaskOptions? options = null)
     {
         if (operation is null)
@@ -55,6 +58,7 @@ public class TaskOperationManager : ITaskOperationManager
         return null;
     }
 
+    /// <inheritdoc/>
     public void Configure(Action<TaskOperationManagerSettings> options)
     {
         _settings = new();
@@ -67,6 +71,7 @@ public class TaskOperationManager : ITaskOperationManager
         }
     }
 
+    /// <inheritdoc/>
     public void Update(TimeSpan deltaTime)
     {
         foreach (var groupKey in _operationGroupnLookup.Keys.ToArray())

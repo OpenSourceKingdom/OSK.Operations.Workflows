@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 namespace OSK.Operations.Workflows.Tasks.Async;
 
 /// <summary>
-/// An <see cref="AsynchronousOperation"/> that returns a <see cref="{TResult}"/> when it has finished iterating successfully
+/// An <see cref="AsynchronousOperation"/> that returns a <typeparamref name="TResult"/> when it has finished iterating successfully
 /// </summary>
 /// <typeparam name="TResult"></typeparam>
 public class AsynchronousOperation<TResult> : AsynchronousOperation, ITaskOperation<TResult>

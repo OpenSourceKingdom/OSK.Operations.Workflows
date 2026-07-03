@@ -1,6 +1,5 @@
 using OSK.Operations.Workflows.Models;
 using OSK.Operations.Workflows.UnitTests._Helpers;
-using System.Collections.Generic;
 
 namespace OSK.Operations.Workflows.UnitTests.Models;
 
