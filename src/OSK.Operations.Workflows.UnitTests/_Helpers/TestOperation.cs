@@ -2,25 +2,38 @@ using OSK.Operations.Workflows.Models;
 
 namespace OSK.Operations.Workflows.UnitTests._Helpers;
 
-internal class TestOperation(int group, int index) : IIterativeOperation
+public class TestOperation() : IterativeOperation, ITaskOperation
 {
-    public int Group => group;
-    public int Index => index;
+    public OperationState DesiredIterationState { get; set; }
 
-    public OperationState TestState { get; set; }
+    public int InitializeCalled { get; private set; }
 
-    public int TotalWorkItems => 1;
+    public int IteratationsCalled { get; private set; }
 
-    public OperationStatus Status { get; set; }
+    public TimeSpan? Delay { get; set; }
 
-    public OperationState Iterate(TimeSpan deltaTime)
+    public string? Message { get; set; }
+
+    public override int TotalWorkItems => 1;
+
+    protected override void Initialize()
     {
-        Status = TestState is OperationState.Failed
-            ? OperationStatus.Failed("Failed")
-            : TestState is OperationState.Aborted
-                ? OperationStatus.Aborted("Aborted")
-                : TestState is OperationState.Complete ? OperationStatus.Complete : OperationStatus.ProgressUpdate(.5);
+        InitializeCalled++;
+    }
 
-        return TestState;
+    protected override OperationStatus RunIteration(TimeSpan delta)
+    {
+        IteratationsCalled++;
+        if (Delay.HasValue && Delay.Value > TimeSpan.Zero)
+        {
+            Delay = Delay.Value - delta;
+            return OperationStatus.ProgressUpdate(.5, "Delaying");
+        }
+
+        return DesiredIterationState is OperationState.Failed
+            ? OperationStatus.Failed(string.IsNullOrWhiteSpace(Message) ? "Failed" : Message)
+            : DesiredIterationState is OperationState.Aborted
+                ? OperationStatus.Aborted(string.IsNullOrWhiteSpace(Message) ? "Aborted" : Message)
+                : DesiredIterationState is OperationState.Complete ? OperationStatus.Complete : OperationStatus.ProgressUpdate(.5);
     }
 }

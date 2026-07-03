@@ -43,13 +43,13 @@ public class TaskOperationManager : ITaskOperationManager
         if (!groupOptions.MaxConcurrentOperations.HasValue || operationGroup.Active.Count < groupOptions.MaxConcurrentOperations.Value)
         {
             operationGroup.Active.Add(operation);
-            return new ManagedOperation { Id = taskId, Task = operation };
+            return new ManagedOperation { TaskGroupId = taskId, Task = operation };
         }
 
         if (!groupOptions.MaxQueueSize.HasValue || operationGroup.Queue.Count < groupOptions.MaxQueueSize.Value)
         {
             operationGroup.Queue.Add(operation);
-            return new ManagedOperation { Id = taskId, Task = operation };
+            return new ManagedOperation { TaskGroupId = taskId, Task = operation };
         }
 
         return null;
@@ -60,9 +60,10 @@ public class TaskOperationManager : ITaskOperationManager
         _settings = new();
         options?.Invoke(_settings);
 
-        if (_settings.Defaults is null)
+        ValidateSettings(_settings.Defaults, "Defaults");
+        foreach (var groupOption in _settings.GroupOptions ?? [])
         {
-            throw new InvalidOperationException("Defaults must be provided in the settings.");
+            ValidateSettings(groupOption.Value, groupOption.Key);
         }
     }
 
@@ -113,6 +114,27 @@ public class TaskOperationManager : ITaskOperationManager
             ? _settings.Defaults
             : groupOptions;
     }
+
+    private void ValidateSettings(ManagedOperationGroupOptions groupOptions, string optionName)
+    {
+        if (groupOptions is null)
+        {
+            throw new InvalidOperationException($"Group options for '{optionName}' must be provided in the settings.");
+        }
+        if (groupOptions.MaxConcurrentOperations.HasValue && groupOptions.MaxConcurrentOperations.Value <= 0)
+        {
+            throw new InvalidOperationException($"MaxConcurrentOperations for '{optionName}' must be greater than zero.");
+        }
+        if (groupOptions.MaxQueueSize.HasValue && groupOptions.MaxQueueSize.Value < 0)
+        {
+            throw new InvalidOperationException($"MaxQueueSize for '{optionName}' must be zero or greater.");
+        }
+    }
+
+    internal ManagedOperationGroup? GetGroup(string groupId)
+        => _operationGroupnLookup.TryGetValue(groupId, out var operationGroup)
+        ? operationGroup 
+        : null;
 
     #endregion
 }

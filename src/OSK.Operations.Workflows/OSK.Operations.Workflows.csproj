@@ -4,7 +4,21 @@
 		<TargetFramework>netstandard2.1</TargetFramework>
 		<Nullable>enable</Nullable>
 		<LangVersion>12</LangVersion>
+
+		<Description>Handles iterating over functions and operations, including async operations, which is especially helpful for managing complex workflows in game engines that run updates frame by frame</Description>
+		<PackageTags>OpenSourceKingdom, OpenSource, operation, workflow, async, task, async, iteration, frame, run</PackageTags>
+		<Title>OSK.Operations.Workflows</Title>
+		<Authors>BlankDev117</Authors>
+		<PackageReadmeFile>README.md</PackageReadmeFile>
+		<RepositoryUrl>https://github.com/OpenSourceKingdom/OSK.Operations.Workflows</RepositoryUrl>
+		<RepositoryType>git</RepositoryType>
+		<PackageLicenseExpression>MIT</PackageLicenseExpression>
+		<GenerateDocumentationFile>true</GenerateDocumentationFile>
 	</PropertyGroup>
+
+	<ItemGroup>
+		<None Include="..\..\README.md" Pack="true" PackagePath="\" />
+	</ItemGroup>
 
 	<ItemGroup>
 		<PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="10.0.9" />

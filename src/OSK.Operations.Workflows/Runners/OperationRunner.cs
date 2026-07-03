@@ -52,7 +52,7 @@ public class OperationRunner: IterativeOperation, IOperationRunner
     /// <param name="operations"></param>
     /// <exception cref="ArgumentNullException"></exception>
     public OperationRunner(OperationRunOptions settings, params ITaskOperation[] operations)
-        : this(settings, [.. operations.Select(operation => new WorkflowTaskOperationDetails(operation))])
+        : this(settings, operations is null ? [] : [.. operations.Select(operation => new WorkflowTaskOperationDetails(operation))])
     {
     }
 
@@ -101,7 +101,7 @@ public class OperationRunner: IterativeOperation, IOperationRunner
             return progressUpdate.ProgressError.Value;
         }
 
-        if (_completedOperations.Count >= TotalWorkItems)
+        if (_completedOperations.Count + _totalFailedOperations >= TotalWorkItems)
         {
             return OperationStatus.Complete;
         }
@@ -130,6 +130,11 @@ public class OperationRunner: IterativeOperation, IOperationRunner
                 if (state is not OperationState.Complete)
                 {
                     _totalFailedOperations++;
+                    
+                    if (!finishedOperation.RunSettings.IgnoreFailure)
+                    {
+                        return (0, finishedOperation.Operation.Status);
+                    }
                     continue;
                 }
 
@@ -142,8 +147,8 @@ public class OperationRunner: IterativeOperation, IOperationRunner
             }
         }
 
-        return (inProgressAggregatedPercentageChange, null);
-    }
+        return (_inProgressOperations.Count is 0 ? 0 : inProgressAggregatedPercentageChange / _inProgressOperations.Count, null);
+    } 
 
     #endregion
 }

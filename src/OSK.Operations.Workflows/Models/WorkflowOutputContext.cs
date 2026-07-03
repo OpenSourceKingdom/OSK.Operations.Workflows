@@ -46,14 +46,16 @@ public class WorkflowOutputContext
     public TOperation? GetLastOperationAs<TOperation>()
         where TOperation: class, IIterativeOperation
     {
-        var lastOperation = _completedTaskLookup.Values.LastOrDefault();
-        return lastOperation is TOperation typedOperation
+        var recentStep = _completedTaskLookup.Values.LastOrDefault();
+        var recentOperation = recentStep?.Values.LastOrDefault();
+
+        return recentOperation is TOperation typedOperation
             ? typedOperation
             : null;
     }
 
     /// <summary>
-    /// Gets a previously completed operation's result as the provided type
+    /// Tries to get a previously completed operation's result as the provided type
     /// </summary>
     /// <remarks>
     /// 💡Notes:
@@ -62,33 +64,39 @@ public class WorkflowOutputContext
     /// <item>Returns null if the key is not present or the cast fails.</item>
     /// </list>
     /// </remarks>
-    /// <typeparam name="TOperation">The type of operation to convert to</typeparam>
     /// <typeparam name="TResult">The type of result the operation returns</typeparam>
-    /// <param name="key"></param>
-    /// <returns></returns>
+    /// <param name="key">The result id for the operation</param>
+    /// <returns>whether the result was successfully retrieved</returns>
     /// 
-    public TResult? GetResultAs<TOperation, TResult>(string stepId, string key)
-        where TOperation: class, ITaskOperation<TResult>
+    public bool TryGetResultAs<TResult>(string stepId, string key, out TResult? result)
     {
-        var operation = GetOperationAs<TOperation>(stepId, key);
-        return operation is null
-            ? default
-            : operation.Result;
+        var operation = GetOperationAs<IIterativeOperation>(stepId, key);
+        if (operation is null || operation is not ITaskOperation<TResult> typedOperation)
+        {
+            result = default;
+            return false;
+        }
+
+        result = typedOperation.Result;
+        return true;
     }
 
     /// <summary>
-    /// Gets the most recent operation and returns the result as the given type
+    /// Tries to get the most recent operation and returns the result as the given type
     /// </summary>
-    /// <typeparam name="TOperation">The type of operation to convert to</typeparam>
     /// <typeparam name="TResult">The type of result the operation returned</typeparam>
-    /// <returns>The result of the operation</returns>
-    public TResult? GetLastResult<TOperation, TResult>()
-        where TOperation: class, ITaskOperation<TResult>
+    /// <returns>whether the result was successfully retrieved</returns>
+    public bool TryGetLastResultAs<TResult>(out TResult? result)
     {
-        var lastOperation = GetLastOperationAs<TOperation>();
-        return lastOperation is null
-            ? default
-            : lastOperation.Result;
+        var lastOperation = GetLastOperationAs<IIterativeOperation>();
+        if (lastOperation is null || lastOperation is not ITaskOperation<TResult> typedOperation)
+        {
+            result = default;
+            return false;
+        }
+
+        result = typedOperation.Result;
+        return true;
     }
 
     #endregion

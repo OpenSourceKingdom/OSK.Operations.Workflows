@@ -2,7 +2,7 @@
 
 public class ManagedOperation
 {
-    public required string Id { get; set; }
+    public required string TaskGroupId { get; set; }
 
     public required ITaskOperation Task { get; set; }
 }
