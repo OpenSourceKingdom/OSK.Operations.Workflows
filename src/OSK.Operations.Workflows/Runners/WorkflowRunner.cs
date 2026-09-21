@@ -23,7 +23,10 @@ public class WorkflowRunner(IEnumerable<WorkflowStep> steps) : IterativeOperatio
 
     #region IWorkflowRunner
 
+    /// <inheritdoc/>
     public event Action<WorkflowStepOperationFinishedEvent>? OnOperationFinished;
+
+    /// <inheritdoc/>
     public event Action<WorkflowEvent>? OnWorkflowEvent;
 
     /// <summary>
@@ -49,14 +52,20 @@ public class WorkflowRunner(IEnumerable<WorkflowStep> steps) : IterativeOperatio
 
     #region WorkflowOperation Overrides
 
+    /// <inheritdoc/>
     public override int TotalWorkItems { get; } = steps.Count();
 
+    /// <inheritdoc/>
+    public int CurrentWorkflowStep { get; private set; }
+
+    /// <inheritdoc/>
     protected override void Initialize()
     {
         PrepareNextStep();
         _initialized = true;
     }
 
+    /// <inheritdoc/>
     protected override OperationStatus RunIteration(TimeSpan delta)
     {
         if (_operationRunner is null || _currentStep is null)
@@ -65,13 +74,26 @@ public class WorkflowRunner(IEnumerable<WorkflowStep> steps) : IterativeOperatio
         }
 
         var state = _operationRunner.Iterate(delta);
-        return state switch
+        var processedStatus = state switch
         {
             OperationState.InProgress => GetProgressUpdate(TotalWorkItems - _stepQueue.Count - 1),
             OperationState.Complete => ProcessStepCompletion(_currentStep),
             OperationState.Aborted or OperationState.Failed => _operationRunner.Status,
             _ => throw new InvalidOperationException($"An unexpected state occurred when iterating the Workflow runner: {state}"),
         };
+
+        switch (processedStatus.State)
+        {
+            case OperationState.Complete:
+                OnWorkflowEvent?.Invoke(new WorkflowCompletedEvent(this));
+                break;
+            case OperationState.Aborted:
+            case OperationState.Failed:
+                OnWorkflowEvent?.Invoke(new WorkflowFailedEvent(this));
+                break;
+        }
+
+        return processedStatus;
     }
 
     #endregion
@@ -83,12 +105,18 @@ public class WorkflowRunner(IEnumerable<WorkflowStep> steps) : IterativeOperatio
         OnWorkflowEvent?.Invoke(new WorkflowStepFinishedEvent(step));
 
         return PrepareNextStep()
-            ? GetProgressUpdate(TotalWorkItems - _stepQueue.Count - 1)
+            ? GetProgressUpdate(GetStepIndex())
             : OperationStatus.Complete;
     }
 
     private bool PrepareNextStep()
     {
+        var stepIndex = GetStepIndex();
+        // Want to use 0 as the current step if there are no work items since you can't be at 1 in that case.
+        CurrentWorkflowStep = stepIndex < 0
+            ? 0
+            : stepIndex + 1;
+
         _currentStep = null;
         while (_stepQueue.Count > 0 && _currentStep is null)
         {
@@ -120,6 +148,9 @@ public class WorkflowRunner(IEnumerable<WorkflowStep> steps) : IterativeOperatio
 
         OnOperationFinished?.Invoke(new WorkflowStepOperationFinishedEvent(step, finishedEvent.Operation));
     }
+
+    private int GetStepIndex()
+        => TotalWorkItems - _stepQueue.Count - 1;
 
     #endregion
 }

@@ -3,7 +3,7 @@
 	<PropertyGroup>
 		<TargetFramework>netstandard2.1</TargetFramework>
 		<Nullable>enable</Nullable>
-		<LangVersion>12</LangVersion>
+		<LangVersion>14</LangVersion>
 
 		<Description>Handles iterating over functions and operations, including async operations, which is especially helpful for managing complex workflows in game engines that run updates frame by frame</Description>
 		<PackageTags>OpenSourceKingdom, OpenSource, operation, workflow, async, task, async, iteration, frame, run</PackageTags>

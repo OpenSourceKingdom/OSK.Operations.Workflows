@@ -76,14 +76,17 @@ public class OperationRunner: IterativeOperation, IOperationRunner
 
     #region IOperationExecutor
 
+    /// <inheritdoc/>
     public event Action<TaskOperationFinishedEvent>? OnOperationFinished;
 
     #endregion
 
     #region IterativeOperation Overrides
 
-    public override int TotalWorkItems { get; } 
+    /// <inheritdoc/>
+    public override int TotalWorkItems { get; }
 
+    /// <inheritdoc/>
     protected override OperationStatus RunIteration(TimeSpan deltaTime)
     {
         while (_inProgressOperations.Count < _settings.MaxConcurrenOperations && _operations.Count > 0)

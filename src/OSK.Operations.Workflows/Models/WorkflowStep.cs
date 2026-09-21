@@ -5,10 +5,16 @@ using System.Linq;
 
 namespace OSK.Operations.Workflows.Models;
 
+/// <summary>
+/// Describes a single step in a workflow
+/// </summary>
 public class WorkflowStep
 {
     #region Api
 
+    /// <summary>
+    /// 
+    /// </summary>
     public string Id { get; set; } = "_default";
 
     public string? Description { get; set; }

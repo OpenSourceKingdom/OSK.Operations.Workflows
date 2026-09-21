@@ -46,13 +46,13 @@ public class TaskOperationManager : ITaskOperationManager
         if (!groupOptions.MaxConcurrentOperations.HasValue || operationGroup.Active.Count < groupOptions.MaxConcurrentOperations.Value)
         {
             operationGroup.Active.Add(operation);
-            return new ManagedOperation { TaskGroupId = taskId, Task = operation };
+            return new ManagedOperation(this) { TaskGroupId = taskId, Task = operation };
         }
 
         if (!groupOptions.MaxQueueSize.HasValue || operationGroup.Queue.Count < groupOptions.MaxQueueSize.Value)
         {
             operationGroup.Queue.Add(operation);
-            return new ManagedOperation { TaskGroupId = taskId, Task = operation };
+            return new ManagedOperation(this) { TaskGroupId = taskId, Task = operation };
         }
 
         return null;
