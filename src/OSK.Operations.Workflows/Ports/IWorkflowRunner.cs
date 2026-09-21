@@ -22,6 +22,17 @@ public interface IWorkflowRunner: IIterativeOperation
     event Action<WorkflowEvent>? OnWorkflowEvent;
 
     /// <summary>
+    /// The current workflow step number.
+    /// </summary>
+    /// <remarks>
+    /// 💡Notes:
+    /// <list type="bullet">
+    /// <item>This is not guaranteed to be a zero-indexed number</item>
+    /// </list>
+    /// </remarks>
+    int CurrentWorkflowStep { get; }
+
+    /// <summary>
     /// Gets a snapshot of the current state of the workflow run, including its status and outputs.
     /// </summary>
     /// <returns></returns>
